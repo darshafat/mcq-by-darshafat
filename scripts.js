@@ -1,109 +1,66 @@
-const questions = [
-    {
-        question: "What is the main function of the CPU?",
-        options: ["Store data permanently", "Process instructions", "Display graphics", "Control peripherals"],
-        correct: 1
-    },
-    {
-        question: "What does RAM stand for?",
-        options: ["Read Access Memory", "Random Access Memory", "Read Application Memory", "Rapid Access Memory"],
-        correct: 1
-    }
-];
-
-let currentQuestionIndex = 0;
-let userAnswers = [];
-let timer;
-let timeLeft = 60; // Time in seconds
-
-document.addEventListener('DOMContentLoaded', function () {
-    showQuestion();
-    startTimer();
-});
-
-function showQuestion() {
-    const questionElement = document.getElementById('question');
-    const optionsContainer = document.getElementById('options-container');
-    const question = questions[currentQuestionIndex];
-
-    questionElement.textContent = question.question;
-    optionsContainer.innerHTML = '';
-
-    question.options.forEach((option, index) => {
-        const optionElement = document.createElement('div');
-        optionElement.innerHTML = `
-            <input type="radio" id="option${index}" name="question${currentQuestionIndex}" value="${index}">
-            <label for="option${index}">${option}</label>
-        `;
-        optionsContainer.appendChild(optionElement);
-    });
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
 }
 
-function nextQuestion() {
-    saveCurrentAnswer();
-    currentQuestionIndex++;
-    if (currentQuestionIndex >= questions.length) {
-        currentQuestionIndex = 0;
-    }
-    showQuestion();
+.container {
+    width: 80%;
+    max-width: 800px;
+    margin: 20px auto;
 }
 
-function prevQuestion() {
-    saveCurrentAnswer();
-    currentQuestionIndex--;
-    if (currentQuestionIndex < 0) {
-        currentQuestionIndex = questions.length - 1;
-    }
-    showQuestion();
+#quiz-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-function saveCurrentAnswer() {
-    const selectedOption = document.querySelector(`input[name="question${currentQuestionIndex}"]:checked`);
-    userAnswers[currentQuestionIndex] = selectedOption ? selectedOption.value : null;
+#question {
+    margin-bottom: 10px;
 }
 
-function submitQuiz() {
-    clearInterval(timer);
-    let score = 0;
-    questions.forEach((q, index) => {
-        if (userAnswers[index] == q.correct) {
-            score++;
-        }
-    });
-
-    document.getElementById('quiz-container').style.display = 'none';
-    document.getElementById('result-container').style.display = 'block';
-    document.getElementById('result').textContent = `Your score: ${score} out of ${questions.length}`;
-
-    showIndicators();
+#options-container {
+    margin-bottom: 20px;
 }
 
-function startTimer() {
-    timer = setInterval(() => {
-        timeLeft--;
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        document.getElementById('timer-display').textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        
-        if (timeLeft <= 0) {
-            clearInterval(timer);
-            submitQuiz();
-        }
-    }, 1000);
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
 }
 
-function showIndicators() {
-    const indicatorsContainer = document.getElementById('indicators-container');
-    indicatorsContainer.innerHTML = '';
+button:hover {
+    background-color: #0056b3;
+}
 
-    questions.forEach((_, index) => {
-        const indicator = document.createElement('div');
-        indicator.className = 'indicator ' + (userAnswers[index] != null ? 'answered' : 'unanswered');
-        indicator.title = `Question ${index + 1}`;
-        indicator.onclick = () => {
-            currentQuestionIndex = index;
-            showQuestion();
-        };
-        indicatorsContainer.appendChild(indicator);
-    });
+#timer {
+    margin-top: 10px;
+    font-size: 18px;
+}
+
+#result-container {
+    text-align: center;
+}
+
+.indicator {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin: 2px;
+}
+
+.answered {
+    background-color: green;
+}
+
+.unanswered {
+    background-color: red;
 }
