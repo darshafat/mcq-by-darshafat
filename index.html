@@ -3,21 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz</title>
+    <title>MCQ Quiz</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="quiz-container">
-        <div id="timer">Time left: <span id="time">10:00</span></div>
-        <div id="question-container"></div>
-        <div id="navigation-container"></div>
-        <div class="button-container">
-            <button id="prev" onclick="prevQuestion()">Previous</button>
-            <button id="next" onclick="nextQuestion()">Next</button>
-            <button id="submit" onclick="submitQuiz()">Submit</button>
+    <div class="container">
+        <div class="header">
+            <h1>MCQ Quiz</h1>
+            <div class="timer" id="timer">Time: 10:00</div>
         </div>
+        <div id="quiz-container">
+            <div id="question-container"></div>
+            <div class="button-container">
+                <button id="prev-button" onclick="prevQuestion()">Previous</button>
+                <button id="next-button" onclick="nextQuestion()">Next</button>
+            </div>
+        </div>
+        <button id="submit-button" onclick="submitQuiz()">Submit</button>
     </div>
-    <div id="results-container" style="display:none;"></div>
+    <div id="results-container" class="hidden">
+        <h2>Results</h2>
+        <div id="results"></div>
+        <button onclick="restartQuiz()">Take Test Again</button>
+    </div>
+    <div class="indicators-container" id="indicators-container"></div>
     <script src="script.js"></script>
 </body>
 </html>
