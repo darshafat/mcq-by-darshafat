@@ -1,41 +1,23 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Quiz</title>
-
     <link rel="stylesheet" href="styles.css">
-
 </head>
-
 <body>
-
     <div id="quiz-container">
-
         <div id="timer">Time left: <span id="time">10:00</span></div>
-
         <div id="question-container"></div>
-
         <div id="navigation-container"></div>
-
-        <button id="prev" onclick="prevQuestion()">Previous</button>
-
-        <button id="next" onclick="nextQuestion()">Next</button>
-
-        <button id="submit" onclick="submitQuiz()">Submit</button>
-
+        <div class="button-container">
+            <button id="prev" onclick="prevQuestion()">Previous</button>
+            <button id="next" onclick="nextQuestion()">Next</button>
+            <button id="submit" onclick="submitQuiz()">Submit</button>
+        </div>
     </div>
-
     <div id="results-container" style="display:none;"></div>
-
     <script src="script.js"></script>
-
 </body>
-
 </html>
