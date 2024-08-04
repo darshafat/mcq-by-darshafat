@@ -1,200 +1,144 @@
 const questions = [
     {
         question: "What does CPU stand for?",
-        answers: ["Central Processing Unit", "Central Process Unit", "Computer Personal Unit", "Central Processor Unit"],
-        correct: "Central Processing Unit"
+        options: ["Central Processing Unit", "Central Process Unit", "Computer Personal Unit", "Central Processor Unit"],
+        answer: "Central Processing Unit"
     },
     {
-        question: "Which computer language is the most widely used?",
-        answers: ["C", "Python", "JavaScript", "Java"],
-        correct: "JavaScript"
+        question: "What is the brain of the computer?",
+        options: ["Motherboard", "CPU", "RAM", "Hard Drive"],
+        answer: "CPU"
     },
-    {
-        question: "What does RAM stand for?",
-        answers: ["Random Access Memory", "Ready Access Memory", "Right Access Memory", "Randomly Accessed Memory"],
-        correct: "Random Access Memory"
-    },
-    {
-        question: "Which part is the brain of the computer?",
-        answers: ["RAM", "CPU", "GPU", "Motherboard"],
-        correct: "CPU"
-    },
-    {
-        question: "What does ROM stand for?",
-        answers: ["Read Only Memory", "Read On Memory", "Read Off Memory", "Ready Only Memory"],
-        correct: "Read Only Memory"
-    },
-    {
-        question: "Which of the following is an output device?",
-        answers: ["Keyboard", "Mouse", "Monitor", "Scanner"],
-        correct: "Monitor"
-    },
-    {
-        question: "What does HTML stand for?",
-        answers: ["HyperText Markup Language", "HyperText Markdown Language", "HyperLoop Machine Language", "HyperText Machine Language"],
-        correct: "HyperText Markup Language"
-    },
-    {
-        question: "Which device is used to connect a computer to a network?",
-        answers: ["Router", "Switch", "Modem", "NIC"],
-        correct: "NIC"
-    },
-    {
-        question: "What is the full form of URL?",
-        answers: ["Uniform Resource Locator", "Uniform Resource Link", "Uniform Registered Locator", "Unified Resource Link"],
-        correct: "Uniform Resource Locator"
-    },
-    {
-        question: "Which of the following is a type of non-volatile memory?",
-        answers: ["RAM", "ROM", "Cache", "Register"],
-        correct: "ROM"
-    }
+    // Add more questions as needed
 ];
 
-let currentQuestion = 0;
+let currentQuestionIndex = 0;
 let score = 0;
-const totalQuestions = questions.length;
-const timeLimit = 600; // 10 minutes
-let timeLeft = timeLimit;
-let timer;
+const userAnswers = Array(questions.length).fill(null);
+const timeLimit = 10 * 60; // 10 minutes
+let timeRemaining = timeLimit;
+let timerInterval;
 
 function startQuiz() {
-    showQuestion(currentQuestion);
+    showQuestion();
     startTimer();
-    createNavigationButtons();
+    updateIndicators();
 }
 
-function startTimer() {
-    timer = setInterval(() => {
-        timeLeft--;
-        document.getElementById('time').textContent = formatTime(timeLeft);
-        if (timeLeft <= 0) {
-            clearInterval(timer);
-            submitQuiz();
-        }
-    }, 1000);
-}
-
-function formatTime(seconds) {
-    const min = Math.floor(seconds / 60);
-    const sec = seconds % 60;
-    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
-}
-
-function showQuestion(index) {
+function showQuestion() {
     const questionContainer = document.getElementById('question-container');
-    const question = questions[index];
-    let html = `<h2>${index + 1}. ${question.question}</h2>`;
-    question.answers.forEach(answer => {
-        html += `<div>
-                    <input type="radio" name="answer" value="${answer}" onclick="highlightAnswer(this)">
-                    <label>${answer}</label>
-                 </div>`;
-    });
-    questionContainer.innerHTML = html;
+    const question = questions[currentQuestionIndex];
+    
+    questionContainer.innerHTML = `
+        <h2>${question.question}</h2>
+        ${question.options.map((option, index) => `
+            <div class="option">
+                <input type="radio" id="option${index}" name="option" value="${option}" onclick="selectOption('${option}')">
+                <label for="option${index}" onclick="selectOption('${option}')">${option}</label>
+            </div>
+        `).join('')}
+    `;
 }
 
-function saveCurrentAnswer() {
-    const selectedAnswer = document.querySelector('input[name="answer"]:checked');
-    if (selectedAnswer) {
-        questions[currentQuestion].userAnswer = selectedAnswer.value;
-    }
+function selectOption(option) {
+    userAnswers[currentQuestionIndex] = option;
+    updateIndicators();
 }
 
 function nextQuestion() {
-    saveCurrentAnswer();
-    if (currentQuestion < totalQuestions - 1) {
-        currentQuestion++;
-        showQuestion(currentQuestion);
-        updateIndicators();
+    if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        showQuestion();
     }
 }
 
 function prevQuestion() {
-    saveCurrentAnswer();
-    if (currentQuestion > 0) {
-        currentQuestion--;
-        showQuestion(currentQuestion);
-        updateIndicators();
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        showQuestion();
     }
 }
 
 function submitQuiz() {
-    saveCurrentAnswer();
-    clearInterval(timer);
-    calculateScore();
+    clearInterval(timerInterval);
     showResults();
-}
-
-function calculateScore() {
-    score = 0;
-    questions.forEach(question => {
-        if (question.userAnswer === question.correct) {
-            score++;
-        }
-    });
 }
 
 function showResults() {
     const resultsContainer = document.getElementById('results-container');
     const quizContainer = document.getElementById('quiz-container');
-    quizContainer.style.display = 'none';
-    resultsContainer.style.display = 'block';
-    let html = `<h2>Your score: ${score}/${totalQuestions}</h2>`;
-    questions.forEach((question, index) => {
-        html += `<div>
-                    <h3>${index + 1}. ${question.question}</h3>
-                    <p>Correct answer: ${question.correct}</p>
-                    <p>Your answer: ${question.userAnswer || 'No answer'}</p>
-                 </div>`;
-    });
-    html += `<button onclick="location.reload()">Take Test Again</button>`;
-    resultsContainer.innerHTML = html;
+    const results = document.getElementById('results');
+    
+    quizContainer.classList.add('hidden');
+    resultsContainer.classList.remove('hidden');
+    
+    let resultHTML = userAnswers.map((answer, index) => {
+        const question = questions[index];
+        const correct = question.answer === answer;
+        if (correct) score++;
+        return `
+            <p>
+                Q${index + 1}: ${question.question}<br>
+                Your answer: ${answer || "None"}<br>
+                Correct answer: ${question.answer}<br>
+                ${correct ? "Correct" : "Wrong"}
+            </p>
+        `;
+    }).join('');
+    
+    results.innerHTML = `<h3>Your score: ${score} out of ${questions.length}</h3>${resultHTML}`;
 }
 
-function createNavigationButtons() {
-    const navContainer = document.getElementById('navigation-container');
-    let html = '';
-    for (let i = 0; i < totalQuestions; i++) {
-        html += `<button class="navigation-button" onclick="navigateToQuestion(${i})">${i + 1}</button>`;
-    }
-    navContainer.innerHTML = html;
-}
-
-function updateIndicators() {
-    const navButtons = document.querySelectorAll('.navigation-button');
-    navButtons.forEach((button, index) => {
-        button.classList.remove('correct', 'wrong');
-        if (questions[index].userAnswer) {
-            if (questions[index].userAnswer === questions[index].correct) {
-                button.classList.add('correct');
-            } else {
-                button.classList.add('wrong');
-            }
-        }
-    });
-}
-
-function navigateToQuestion(index) {
-    saveCurrentAnswer();
-    currentQuestion = index;
-    showQuestion(currentQuestion);
+function restartQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    userAnswers.fill(null);
+    timeRemaining = timeLimit;
+    
+    document.getElementById('quiz-container').classList.remove('hidden');
+    document.getElementById('results-container').classList.add('hidden');
+    
+    showQuestion();
+    startTimer();
     updateIndicators();
 }
 
-function highlightAnswer(selectedAnswer) {
-    const answers = document.getElementsByName("answer");
-    answers.forEach(answer => {
-        if (answer.checked) {
-            if (answer.value === questions[currentQuestion].correct) {
-                answer.parentElement.style.color = "green";
-            } else {
-                answer.parentElement.style.color = "red";
-            }
-        } else {
-            answer.parentElement.style.color = "black";
+function startTimer() {
+    const timerElement = document.getElementById('timer');
+    timerInterval = setInterval(() => {
+        if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+            submitQuiz();
+            return;
         }
+        
+        timeRemaining--;
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        timerElement.textContent = `Time: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }, 1000);
+}
+
+function updateIndicators() {
+    const indicatorsContainer = document.getElementById('indicators-container');
+    indicatorsContainer.innerHTML = '';
+    
+    questions.forEach((_, index) => {
+        const indicator = document.createElement('div');
+        indicator.classList.add('indicator');
+        indicator.textContent = index + 1;
+        
+        if (userAnswers[index] !== null) {
+            indicator.classList.add('answered');
+        }
+        
+        indicator.onclick = () => {
+            currentQuestionIndex = index;
+            showQuestion();
+        };
+        
+        indicatorsContainer.appendChild(indicator);
     });
 }
 
-startQuiz();
+document.addEventListener('DOMContentLoaded', startQuiz);
